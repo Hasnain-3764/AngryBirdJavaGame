@@ -1,0 +1,83 @@
+
+loadSprite.png
+size: 2048, 2048
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+000
+  rotate: false
+  xy: 2, 1358
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+001
+  rotate: false
+  xy: 2, 906
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+002
+  rotate: false
+  xy: 454, 1358
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+003
+  rotate: false
+  xy: 2, 454
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+004
+  rotate: false
+  xy: 454, 906
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+005
+  rotate: false
+  xy: 906, 1358
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+006
+  rotate: false
+  xy: 2, 2
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+007
+  rotate: false
+  xy: 454, 454
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+008
+  rotate: false
+  xy: 906, 906
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+009
+  rotate: false
+  xy: 1358, 1358
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+010
+  rotate: false
+  xy: 454, 2
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1

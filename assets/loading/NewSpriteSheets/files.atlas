@@ -1,0 +1,48 @@
+
+files.png
+size: 2048, 128
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+000
+  rotate: false
+  xy: 806, 3
+  size: 400, 51
+  orig: 400, 51
+  offset: 0, 0
+  index: -1
+001
+  rotate: false
+  xy: 2, 56
+  size: 400, 52
+  orig: 400, 52
+  offset: 0, 0
+  index: -1
+002
+  rotate: false
+  xy: 2, 2
+  size: 400, 52
+  orig: 400, 52
+  offset: 0, 0
+  index: -1
+003
+  rotate: false
+  xy: 404, 56
+  size: 400, 52
+  orig: 400, 52
+  offset: 0, 0
+  index: -1
+004
+  rotate: false
+  xy: 404, 2
+  size: 400, 52
+  orig: 400, 52
+  offset: 0, 0
+  index: -1
+005
+  rotate: false
+  xy: 806, 56
+  size: 400, 52
+  orig: 400, 52
+  offset: 0, 0
+  index: -1
