@@ -99,7 +99,7 @@ public class Level3 extends GameLevel {
         addPig(helmetPig2);
 
 
-        // Add birds
+        // birds
         Texture blackBirdTexture = new Texture(Gdx.files.internal("Birds/black.png"));
         BlackBird blackBird = new BlackBird(blackBirdTexture);
         blackBird.setPosition(150, 150); // Position the black bird

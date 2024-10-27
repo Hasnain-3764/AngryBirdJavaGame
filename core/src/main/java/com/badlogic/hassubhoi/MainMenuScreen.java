@@ -11,10 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -53,76 +50,72 @@ public class MainMenuScreen extends ScreenAdapter {
     public void show() {
         batch = new SpriteBatch();
 
-        // Set up the camera and viewport
+        //camera and viewport setup
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
-
-        // Center the camera
         camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
         camera.update();
-
         stage = new Stage(viewport, batch);
         Gdx.input.setInputProcessor(stage);
 
-        // Load the background texture and create a sprite
-        backgroundTexture = new Texture(Gdx.files.internal("Level3.png"));
+        // bkg texture -> bkg sprite
+        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
         backgroundSprite = new Sprite(backgroundTexture);
         sprite = new Sprite(backgroundTexture);
         sprite.setSize(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        buttonUpTexture = new Texture("buttonPro/63.png"); // Replace with your texture file
-        buttonDownTexture = new Texture("buttonPro/63.png"); // Optional: pressed button texture
+        buttonUpTexture = new Texture("buttonPro/platter.png");
+        buttonDownTexture = new Texture("buttonPro/platterDark.png"); // same (implement)
 
-        // Generate custom fonts
+        //custom fonts
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/angrybirds-regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         parameter.size = 36;
-        parameter.color = Color.WHITE;
+        parameter.color = Color.BLACK;
         parameter.borderWidth = 1;
-        parameter.borderColor = Color.BLACK;
+        parameter.borderColor = Color.WHITE;
         buttonFont = generator.generateFont(parameter);
         generator.dispose();
 
-
-        // Create Button Style without NinePatch
+    // custom button
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = buttonFont;
         textButtonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonUpTexture));
         textButtonStyle.down = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
-
-        // Create Buttons
         playButton = new TextButton("Play", textButtonStyle);
         settingsButton = new TextButton("Settings", textButtonStyle);
         exitButton = new TextButton("Exit", textButtonStyle);
 
-        // Position buttons using a table
+        // putting image platter as a button? why? can we add png(Nope, texture is not ui element)
+        Texture menuTexture = new Texture(Gdx.files.internal("buttonPro/mainMenu.png"));
+        Image menuImage = new Image(menuTexture);
+        // layout by table
         table = new Table();
-        table.setFillParent(true); // Make the table fill the stage
+        table.setFillParent(true);
         table.center();
-
-        // Add buttons to the table without fixed sizes
+        table.add(menuImage).size(menuTexture.getWidth()/1.5f, menuTexture.getHeight()/1.5f).pad(10);
+        table.row();
         table.add(playButton).size(200, 50).pad(10);
         table.row();
         table.add(settingsButton).size(200, 50).pad(10);
         table.row();
         table.add(exitButton).size(200, 50).pad(10);
 
-        // Add table to stage
         stage.addActor(table);
 
-        // Button listeners
+        // button listeners
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                uiManager.showLevelSelectScreen();  // Go to Level Select
+                uiManager.showLevelSelectScreen();  // go to Level Select
             }
         });
 
         settingsButton.addListener(new ClickListener() { // Settings Button Listener
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                uiManager.showSettingsScreen();
+                uiManager.showSettingsScreen(); //go to setting
             }
         });
 
@@ -144,18 +137,14 @@ public class MainMenuScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(1, 1, 1, 1);  // Clear to a dark background color
-
-        // Update camera
+        ScreenUtils.clear(0, 0, 0, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        // Draw background
         batch.begin();
         sprite.draw(batch);
         batch.end();
 
-        // Draw stage (buttons)
         stage.act(delta);
         stage.draw();
     }

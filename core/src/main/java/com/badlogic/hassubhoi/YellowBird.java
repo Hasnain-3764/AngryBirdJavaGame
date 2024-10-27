@@ -13,7 +13,7 @@ public class YellowBird extends Bird {
     public void activateSpecialAbility() {
         if (!hasBoosted) {
             System.out.println("Yellow Bird increases speed!");
-            // Increase the bird's speed
+            // increase the bird's speed
             velocity.scl(4f); // Increase speed by 50%
             hasBoosted = true;
         }

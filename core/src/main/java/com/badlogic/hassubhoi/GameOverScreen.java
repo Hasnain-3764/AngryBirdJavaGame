@@ -11,10 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -43,8 +40,14 @@ public class GameOverScreen extends ScreenAdapter {
     private TextButton mainMenuButton;
     private Table table;
     private Sprite backgroundSprite;
-    private Texture buttonUpTexture; // Texture for the button
+    private Texture buttonUpTexture; // texture for the button
     private Texture buttonDownTexture;
+
+    private ImageButton exitButton; // this is imagebutton as this is derived from png
+    private ImageButton settingsButton;
+    private Texture exitTexture;
+    private Texture settinsTexture;
+
 
     public GameOverScreen(UIManager uiManager, int currentLevel) {
         this.uiManager = uiManager;
@@ -54,35 +57,36 @@ public class GameOverScreen extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        // Set up the camera and viewport
+        // set up the camera and viewport
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
 
-        // Center the camera
+        // center the camera
         camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
         camera.update();
 
         stage = new Stage(viewport, batch);
+        Gdx.input.setInputProcessor(stage);
 
-        background = new Texture("Level3.png");
+        background = new Texture("background.png");
         backgroundSprite = new Sprite(background);
         backgroundSprite.setSize(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         backgroundSprite.setPosition(0, 0);
 
-        buttonUpTexture = new Texture("buttonPro/63.png"); // Replace with your texture file
-        buttonDownTexture = new Texture("buttonPro/63.png"); // Optional: pressed button texture
+        buttonUpTexture = new Texture("buttonPro/platter.png");
+        buttonDownTexture = new Texture("buttonPro/platterDark.png"); // implement
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/angrybirds-regular.ttf")); // Replace with your font file
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/angrybirds-regular.ttf")); // implement
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = 64; // Adjust size as needed
+        parameter.size = 64;
         parameter.color = Color.WHITE;
         parameter.borderWidth = 2;
         parameter.borderColor = Color.BLACK;
         largeBoldFont = generator.generateFont(parameter);
 
-        parameter.size = 32; // Adjust size as needed
+        parameter.size = 32;
         parameter.color = Color.BLACK;
         parameter.borderWidth = 1;
         parameter.borderColor = Color.WHITE;
@@ -96,27 +100,31 @@ public class GameOverScreen extends ScreenAdapter {
 
         generator.dispose();
 
+        // creating labels for sorry and fail message
         Label.LabelStyle largeBoldStyle = new Label.LabelStyle();
         largeBoldStyle.font = largeBoldFont;
-
         Label.LabelStyle mediumStyle = new Label.LabelStyle();
         mediumStyle.font = mediumFont;
-
-
         Label sorryLabel = new Label("SORRY", largeBoldStyle);
         Label failLevelLabel = new Label("You failed the level!", mediumStyle);
 
-        // Create Button Style without NinePatch
+        // craeting button for retry and main menu.
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = buttonFont;
         textButtonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonUpTexture));
         textButtonStyle.down = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
 
-        // Create Buttons
+
+        //some more buttons
+        exitTexture = new Texture(Gdx.files.internal("buttonPro/exit.png"));
+        settinsTexture = new Texture(Gdx.files.internal("buttonPro/settings.png"));
+        exitButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(exitTexture)));
+        settingsButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(settinsTexture)));
+
+
         retryButton = new TextButton("Retry", textButtonStyle);
         mainMenuButton = new TextButton("Main Menu", textButtonStyle);
 
-        // Button listeners
         retryButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -130,8 +138,7 @@ public class GameOverScreen extends ScreenAdapter {
                 uiManager.showMainMenu();
             }
         });
-
-        // Layout with Table
+        // centralised layout(implement)
         Table table = new Table();
         table.setFillParent(true);
         table.center();
@@ -144,23 +151,30 @@ public class GameOverScreen extends ScreenAdapter {
         table.row();
         table.add(mainMenuButton).size(200, 50);
 
+        Table table2 = new Table();
+        table2.setFillParent(true);
+        table2.top().left();
+        float buttonSize = viewport.getWorldHeight() * 0.1f; // 10% of viewport
+        table2.add(exitButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
+        table2.add(settingsButton).size(buttonSize).padTop(0).padRight(10);
+
+
         stage.addActor(table);
+        stage.addActor(table2);
+
     }
 
-    @Override
+    @Override // update camera, draw batch, draw stage.
     public void render(float delta) {
         ScreenUtils.clear(Color.BLACK);
 
-        // Update camera
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        // Draw background
         batch.begin();
         backgroundSprite.draw(batch);
         batch.end();
 
-        // Draw stage (buttons)
         stage.act(delta);
         stage.draw();
     }

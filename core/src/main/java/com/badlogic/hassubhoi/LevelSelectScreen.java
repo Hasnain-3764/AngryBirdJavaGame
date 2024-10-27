@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -40,9 +41,17 @@ public class LevelSelectScreen extends ScreenAdapter {
     private TextButton Level2Button;
     private TextButton Level3Button;
     private TextButton Level4Button;
-    private TextButton exitButton;
+    private TextButton mainMenuButton;
+
     private Texture buttonUpTexture;
     private Texture buttonDownTexture;
+
+    private ImageButton exitButton; // this is imagebutton as this is derived from png
+    private ImageButton settingsButton;
+    private Texture exitTexture;
+    private Texture settinsTexture;
+    private Table table1;
+    private Table table2;
 
     public LevelSelectScreen(UIManager uiManager) {
         this.uiManager = uiManager;
@@ -61,15 +70,15 @@ public class LevelSelectScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(stage);
 
         // Load background and notice board textures
-        background = new Texture(Gdx.files.internal("Level3.png"));
+        background = new Texture(Gdx.files.internal("background.png"));
         backgroundSprite = new Sprite(background);
         backgroundSprite.setSize(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         backgroundSprite.setPosition(0, 0);
         noticeBoard = new Texture(Gdx.files.internal("buttonPro/selectLevel.png"));
 
 
-        buttonUpTexture = new Texture("buttonPro/63.png"); // Replace with your texture file
-        buttonDownTexture = new Texture("buttonPro/63.png"); // Optional: pressed button texture
+        buttonUpTexture = new Texture("buttonPro/platter.png"); // Replace with your texture file
+        buttonDownTexture = new Texture("buttonPro/platterDark.png"); // Optional: pressed button texture
 
         // Generate custom fonts
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/angrybirds-regular.ttf"));
@@ -88,35 +97,61 @@ public class LevelSelectScreen extends ScreenAdapter {
         textButtonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonUpTexture));
         textButtonStyle.down = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
 
-        // Create table for layout
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
+        // Create table1 for layout
+        table1 = new Table();
+        table1.setFillParent(true);
+        table1.center();
 
         Level1Button = new TextButton("Level 1",textButtonStyle);
         Level2Button = new TextButton("Level 2",textButtonStyle);
         Level3Button = new TextButton("Level 3",textButtonStyle);
         Level4Button = new TextButton("Level 4",textButtonStyle);
-        exitButton = new TextButton("Exit", textButtonStyle);
+        mainMenuButton = new TextButton("Main Menu", textButtonStyle);
+        // some more buttons(image)
+        exitTexture = new Texture(Gdx.files.internal("buttonPro/exit.png"));
+        settinsTexture = new Texture(Gdx.files.internal("buttonPro/settings.png"));
+        exitButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(exitTexture)));
+        settingsButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(settinsTexture)));
 
         // Layout with Table
-        table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.padTop(60);
+        table1 = new Table();
+        table1.setFillParent(true);
+        table1.center();
+        table1.padTop(60);
         // Add Labels and Buttons to the Table
-        table.add(Level1Button).size(200,45).padTop(12);
-        table.row();
-        table.add(Level2Button).size(200,45).padTop(8);
-        table.row();
-        table.add(Level3Button).size(200,45).padTop(8);
-        table.row();
-        table.add(Level4Button).size(200,45).padTop(8);
-        table.row();
+        table1.add(Level1Button).size(200,45).padTop(12);
+        table1.row();
+        table1.add(Level2Button).size(200,45).padTop(8);
+        table1.row();
+        table1.add(Level3Button).size(200,45).padTop(8);
+        table1.row();
+        table1.add(Level4Button).size(200,45).padTop(8);
+        table1.row();
 
-        table.add(exitButton).size(200, 50).padTop(25);
-        stage.addActor(table);
+        table1.add(mainMenuButton).size(200, 50).padTop(25);
 
+        table2 = new Table();
+        table2.setFillParent(true);
+        table2.top().left();
+        float buttonSize = viewport.getWorldHeight() * 0.1f; // 10% of viewport
+        table2.add(exitButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
+        table2.add(settingsButton).size(buttonSize).padTop(0).padRight(10);
+
+        stage.addActor(table1);
+        stage.addActor(table2);
+
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
+        settingsButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x , float y){
+                uiManager.showSettingsScreen();
+            }
+        });
         Level1Button.addListener(new ClickListener(){
             public void clicked(InputEvent event, float x, float y){
                 System.out.println("Level 1 selected");
@@ -138,30 +173,29 @@ public class LevelSelectScreen extends ScreenAdapter {
         Level4Button.addListener(new ClickListener(){
             public void clicked(InputEvent event, float x, float y){
                 System.out.println("Level 4 selected");
-                uiManager.showGamePlayScreen(5);
+                uiManager.showGamePlayScreen(4);
             }
         });
-        exitButton.addListener(new ClickListener(){
+        mainMenuButton.addListener(new ClickListener(){
             public void clicked(InputEvent event, float x, float y){
-                System.out.println("Exiting Gracefully");
-                Gdx.app.exit();
+                System.out.println("Showing main menu");
+                uiManager.showMainMenu();
             }
         });
 
     }
 
-    @Override
+    @Override // here buttons are drawn using stage, while backgorund and noticeboad used batch.
     public void render(float delta) {
-        // Clear the screen with a dark teal color
-        ScreenUtils.clear(0, 0.2f, 0.2f, 1);
+        ScreenUtils.clear(0, 0f, 0f, 1);
 
-        // Draw background and notice board
+        // craw background and notice board
         batch.setProjectionMatrix(stage.getCamera().combined);
         batch.begin();
-        // Draw the background to cover the entire viewport
+        // drawing the background so that it cover the entire viewport
         batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
 
-        // Draw notice board centered on the screen
+        // centring noticeboard
         float noticeBoardWidth = viewport.getWorldWidth() * 0.5f;
         float noticeBoardHeight = viewport.getWorldHeight() * 0.8f;
         float noticeBoardX = (viewport.getWorldWidth() - noticeBoardWidth) / 2;
@@ -169,7 +203,7 @@ public class LevelSelectScreen extends ScreenAdapter {
         batch.draw(noticeBoard, noticeBoardX, noticeBoardY, noticeBoardWidth, noticeBoardHeight);
         batch.end();
 
-        // Update and draw the stage (buttons)
+        // update and draw the stage(buttons)
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
     }

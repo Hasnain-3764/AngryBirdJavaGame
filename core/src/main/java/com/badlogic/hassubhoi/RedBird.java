@@ -9,6 +9,6 @@ public class RedBird extends Bird {
 
     @Override
     public void activateSpecialAbility() {
-        // Red bird has no special ability
+        //red bird has no special ability
     }
 }

@@ -13,7 +13,7 @@ public abstract class Structure extends Image {
         super(texture);
         this.texture = texture;
         this.health = health;
-        setSize(64, 64); // Adjust size as needed
+        setSize(64, 64); // adjust size
     }
 
     public void takeDamage(int damage) {
@@ -23,7 +23,7 @@ public abstract class Structure extends Image {
         }
     }
 
-    // Add this method to define getBoundingRectangle
+    //method to define getBoundingRectangle
     public Rectangle getBoundingRectangle() {
         return new Rectangle(getX(), getY(), getWidth(), getHeight());
     }

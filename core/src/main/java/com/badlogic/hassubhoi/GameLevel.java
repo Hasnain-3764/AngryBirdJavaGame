@@ -21,7 +21,7 @@ public abstract class GameLevel {
         return birds;
     }
 
-    public abstract void setupLevel();
+    public abstract void setupLevel();// implement
 
     public void addStructure(Structure structure) {
         structures.add(structure);

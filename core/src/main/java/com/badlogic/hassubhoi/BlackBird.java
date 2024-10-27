@@ -14,27 +14,28 @@ public class BlackBird extends Bird {
     public void activateSpecialAbility() {
         if (!hasExploded) {
             hasExploded = true;
+//            blackBirdExplode(); // to be implemented
             System.out.println("Black Bird explodes like a bomb!");
-
-            // Damage nearby pigs and structures
+            // if retangles collide then explode
             if (getStage() != null) {
                 Actor[] actorsArray = getStage().getActors().toArray(Actor.class);
                 for (Actor actor : actorsArray) {
                     if (actor instanceof Pig) {
                         Pig pig = (Pig) actor;
                         if (this.getBoundingRectangle().overlaps(pig.getBoundingRectangle())) {
-                            pig.takeDamage(20); // Adjust damage value
+                            pig.takeDamage(20); // some damage value
+
                         }
                     } else if (actor instanceof Structure) {
                         Structure structure = (Structure) actor;
                         if (this.getBoundingRectangle().overlaps(structure.getBoundingRectangle())) {
-                            structure.takeDamage(20); // Adjust damage value
+                            structure.takeDamage(20); // some other damage value
                         }
                     }
                 }
             }
 
-            // Remove the bird after explosion
+            // remove the bird after explosion
             remove();
         }
     }

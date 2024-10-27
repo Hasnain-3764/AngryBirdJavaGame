@@ -59,7 +59,7 @@ public class Level2 extends GameLevel {
         glassBase3.setSize(60,10);
         addStructure(glassBase3);
 
-        // Add pigs
+        // pigs
         Texture pigTexture = new Texture(Gdx.files.internal("Pigs/pig.png"));
         NormalPig pig1 = new NormalPig(pigTexture);
         pig1.setPosition(335,155);
@@ -68,7 +68,7 @@ public class Level2 extends GameLevel {
 
         Texture helmetPigTexture = new Texture(Gdx.files.internal("Pigs/helmetpig.png"));
         HelmetPig helmetPig = new HelmetPig(helmetPigTexture);
-        helmetPig.setPosition(600, 160); // Position the helmet pig
+        helmetPig.setPosition(600, 160); // helmet pig location
         helmetPig.setSize(50,50);
         addPig(helmetPig);
 
@@ -79,15 +79,35 @@ public class Level2 extends GameLevel {
         redBird1.setPosition(150,0);
         addBird(redBird1);
 
+        RedBird redBird2 = new RedBird(redBirdText1);
+        redBird2.setPosition(150,0);
+        addBird(redBird2);
+
+        RedBird redBird3 = new RedBird(redBirdText1);
+        redBird3.setPosition(150,0);
+        addBird(redBird3);
+
+
+
         Texture blueBirdTexture = new Texture(Gdx.files.internal("Birds/blue.png"));
         BlueBird blueBird = new BlueBird(blueBirdTexture);
         blueBird.setPosition(150, 150); // Position the blue bird
         addBird(blueBird);
+
+        BlueBird blueBird2 = new BlueBird(blueBirdTexture);
+        blueBird2.setPosition(150, 150); // Position the blue bird
+        addBird(blueBird2);
 
 
         Texture yellowBirdText1 = new Texture(Gdx.files.internal("Birds/yellow.png"));
         YellowBird yellowBird1 = new YellowBird(yellowBirdText1);
         yellowBird1.setPosition(150,80);
         addBird(yellowBird1);
+
+        YellowBird yellowBird2 = new YellowBird(yellowBirdText1);
+        yellowBird2.setPosition(150,80);
+        addBird(yellowBird2);
+
+
     }
 }

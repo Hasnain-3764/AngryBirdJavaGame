@@ -33,7 +33,8 @@ public class Level1 extends GameLevel {
         woodBase1.setPosition(530,115);
         woodBase1.setSize(60,10);
         addStructure(woodBase1);
-        // Add pigs on top
+
+        // pigs on top
         Texture pigTexture = new Texture(Gdx.files.internal("Pigs/pig.png"));
         NormalPig pig1 = new NormalPig(pigTexture);
         pig1.setPosition(532, 225);
@@ -49,11 +50,17 @@ public class Level1 extends GameLevel {
         // Add birds
         Texture redBirdTexture = new Texture(Gdx.files.internal("Birds/red.png"));
         RedBird redBird = new RedBird(redBirdTexture);
-        redBird.setPosition(150, 150); // Position the red bird
+        redBird.setPosition(150, 150);
         addBird(redBird);
 
         RedBird redBird2 = new RedBird(redBirdTexture);
         redBird2.setPosition(150, 150);
         addBird(redBird2);
+
+        RedBird redBird3 = new RedBird(redBirdTexture);
+        redBird3.setPosition(150, 150);
+        addBird(redBird3);
+
+
     }
 }

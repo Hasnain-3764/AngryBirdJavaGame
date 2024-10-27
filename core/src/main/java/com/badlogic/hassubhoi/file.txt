@@ -1,9 +1,0 @@
-below is the implementation of my angrybirdsjava game.
-there are following issues
-1) the program directly runs in full screen.
-2) the loading button on the first screen is pretty large : loading/Spritesheets/loadSprite.atlas
-3) the main menu screen has 3 horizontal buttons
-4) the buttons work fine in full screen but when window size is changed, they move out of screen
-5) on setting screen, i want the buttons to be image buttons, not text, and i dont want backgroundselect functionality, instead i want a image button for on/off notifications. these buttons should resize accordingly while changing window sizes.
-the on/off button, sound and notification change on clicking from on to off and reverse.
-6) game play screen should have image buttons for pausing game, restarting game, exiting game, going back to level screen, on the top. these buttons should resize accordingly while changing window sizes.

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -43,21 +44,22 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private Queue<Bird> birdQueue;
     private Bird currentBird;
-    private final float groundLevelY = 50f; // Adjust to match your ground level
+    private final float groundLevelY = 50f;
+    // groundlevelY  is same for slingshot and bird landing
 
     private int level;
 
     private int currentFrame = 1;
-    private int MAX_FRAMES;
+    private int MAX_FRAMES; // should be final?
     private TextureAtlas textureAtlas;
     private TextureRegion textureRegion;
 
-    private float frameDuration = 0.1f; // Time per frame in seconds (0.1 seconds per frame = 10 FPS)
+    private float frameDuration = 0.1f; //time per frame(s)
     private float timeSinceLastFrame = 0f;
 
 
     private boolean isPaused = false;
-    // Audio
+    // audio
 //    private Music backgroundMusic;
     private Sound birdLaunchSound;
     private Sound pigHitSound;
@@ -68,13 +70,18 @@ public class GamePlayScreen extends ScreenAdapter {
     private float levelCompleteTimer = 0f;
     private final float LEVEL_COMPLETE_DELAY = 2f; // 2 seconds delay\
 
-    private ImageButton pauseButton;
+//    private ImageButton pauseButton;
+//    private ImageButton playButton;
+    private ImageButton playPauseToggleButton;
     private ImageButton restartButton;
     private ImageButton exitButton;
     private ImageButton levelSelectButton;
     private ImageButton levelCompleteButton;
     private ImageButton settingsButton;
     private ImageButton levelFailButton;
+
+    private Texture levelHeader;
+    private Image levelHeaderImage;
 
     public GamePlayScreen(UIManager uiManager, int level) {
         System.out.println("Initializing GamePlayScreen for level: " + level);
@@ -118,8 +125,7 @@ public class GamePlayScreen extends ScreenAdapter {
 
         shapeRenderer = new ShapeRenderer();
 
-        // Load music and sounds
-//        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background_music.mp3"));
+//        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background_music.mp3")); // moved background music to
         birdLaunchSound = Gdx.audio.newSound(Gdx.files.internal("bird_launch.wav"));
         pigHitSound = Gdx.audio.newSound(Gdx.files.internal("pig_hit.wav"));
         levelCompleteSound = Gdx.audio.newSound(Gdx.files.internal("level_complete.wav"));
@@ -137,17 +143,31 @@ public class GamePlayScreen extends ScreenAdapter {
     public void show() {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        // Load button textures
+        // loading all button textures
         Texture pauseTexture = new Texture(Gdx.files.internal("buttonPro/pauseButton.png"));
+        Texture playTexture = new Texture(Gdx.files.internal("buttonPro/play.png"));
         Texture restartTexture = new Texture(Gdx.files.internal("buttonPro/restart.png"));
         Texture exitTexture = new Texture(Gdx.files.internal("buttonPro/exit.png"));
         Texture levelSelectTexture = new Texture(Gdx.files.internal("buttonPro/hamburger.png"));
         Texture levelCompleteTexture = new Texture(Gdx.files.internal("buttonPro/forward2.png"));
         Texture settinsTexture = new Texture(Gdx.files.internal("buttonPro/settings.png"));
         Texture levelFailTexture = new Texture(Gdx.files.internal("buttonPro/levelFail.png"));
-
-        // Create ImageButtons with TextureRegionDrawables
-        pauseButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(pauseTexture)));
+        if(level == 1){
+            levelHeader = new Texture(Gdx.files.internal("buttonPro/level1.png"));
+        }
+        else if(level == 2){
+            levelHeader = new Texture(Gdx.files.internal("buttonPro/level2.png"));
+        }
+        else if(level == 3){
+            levelHeader = new Texture(Gdx.files.internal("buttonPro/level3.png"));
+        }
+        else if(level == 4){
+            levelHeader = new Texture(Gdx.files.internal("buttonPro/level4.png"));
+        }
+        //  textureRegionDrawable to make text button, not skin?
+        //! can't confingure custom skin(implement)
+//        pauseButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(pauseTexture)));
+//        playButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(pauseTexture)));
         restartButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(restartTexture)));
         exitButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(exitTexture)));
         levelSelectButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(levelSelectTexture)));
@@ -155,12 +175,23 @@ public class GamePlayScreen extends ScreenAdapter {
         settingsButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(settinsTexture)));
         levelFailButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(levelFailTexture)));
 
+        TextureRegionDrawable pauseButton = (new TextureRegionDrawable(pauseTexture));
+        TextureRegionDrawable playButton = (new TextureRegionDrawable(playTexture));
+
+        // making them toggle
+        ImageButton.ImageButtonStyle toggleStyle = new ImageButton.ImageButtonStyle();
+        toggleStyle.up = pauseButton;
+        toggleStyle.checked = playButton;
+
+        playPauseToggleButton = new ImageButton(toggleStyle);
+
         // Add listeners
-        pauseButton.addListener(new ClickListener() {
+        playPauseToggleButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                togglePause();
-                boolean isChecked = pauseButton.isChecked();
+//                togglePauseGame(); // to be implemented
+                // for now, just toggling sounds
+                boolean isChecked = playPauseToggleButton.isChecked();
                 SoundManager.getInstance().setMusicEnabled(!isChecked);
                 SoundManager.getInstance().setSoundsEnabled(!isChecked);
             }
@@ -206,33 +237,37 @@ public class GamePlayScreen extends ScreenAdapter {
             }
         });
 
+        Image level1image = new Image(levelHeader);
+        Table centralTable = new Table();
+        centralTable.setFillParent(true);
+        centralTable.top();
+        centralTable.add(level1image).size(levelHeader.getWidth()/2.5f,levelHeader.getHeight()/2.5f);
 
-        // Create tables to hold the buttons
-        Table leftButtonTable = new Table();
         Table rightButtonTable = new Table();
+        Table leftButtonTable = new Table();
 
-        leftButtonTable.top().right();
-        rightButtonTable.top().left();
+        rightButtonTable.top().right();
+        leftButtonTable.top().left();
 
-        leftButtonTable.setFillParent(true);
         rightButtonTable.setFillParent(true);
+        leftButtonTable.setFillParent(true);
 
-        float buttonSize = viewport.getWorldHeight() * 0.1f; // 10% of viewport height
+        float buttonSize = viewport.getWorldHeight() * 0.1f; // 10% of viewport
 
-        // Add three buttons to the left table
-        leftButtonTable.add(levelCompleteButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
-        leftButtonTable.add(pauseButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
-        leftButtonTable.add(restartButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
-        leftButtonTable.add(levelSelectButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
+        // right table
+        rightButtonTable.add(levelCompleteButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
+        rightButtonTable.add(playPauseToggleButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
+        rightButtonTable.add(restartButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
+        rightButtonTable.add(levelSelectButton).size(buttonSize).padTop(0).padLeft(5).padRight(5).padBottom(5);
 
-        // Add the fourth button to the right table
-        rightButtonTable.add(exitButton).size(buttonSize).padTop(0).padRight(10);
-        rightButtonTable.add(settingsButton).size(buttonSize).padTop(0).padRight(10);
-        rightButtonTable.add(levelFailButton).size(buttonSize).padTop(0).padRight(10);
+        // left table
+        leftButtonTable.add(exitButton).size(buttonSize).padTop(0).padRight(10);
+        leftButtonTable.add(settingsButton).size(buttonSize).padTop(0).padRight(10);
+        leftButtonTable.add(levelFailButton).size(buttonSize).padTop(0).padRight(10);
 
-        // Add the tables to the stage
-        stage.addActor(leftButtonTable);
+        stage.addActor(centralTable);
         stage.addActor(rightButtonTable);
+        stage.addActor(leftButtonTable);
     }
 
 
@@ -263,47 +298,49 @@ public class GamePlayScreen extends ScreenAdapter {
             stage.addActor(currentBird);
         } else {
             currentBird = null;
-            // No more birds; handle end of level if needed
-        }
+            // no bird left, what now? endPlay? restart?
+            }
     }
 
     private void loadLevel(int levelNumber) {
         GameLevel level = LevelManager.loadLevel(levelNumber);
         level.setupLevel();
 
-        // Add birds to the queue
-//        birdQueue.addAll(level.getBirds());
+        // add birds to the queue
+//        birdQueue.addAll(level.getBirds()); // some error.
         for (Bird bird : level.getBirds()) {
             birdQueue.addLast(bird);
         }
-
-        // Add pigs and structures to the stage
+        // similarly add pigs
         for (Pig pig : level.getPigs()) {
             pigs.add(pig);
             stage.addActor(pig);
         }
-
+        // similarly adding structures
         for (Structure structure : level.getStructures()) {
             structures.add(structure);
             stage.addActor(structure);
         }
     }
 
-
+    // not required as of now, but still..
     private void drawSlingshotElastic() {
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(0, 0, 0, 1); // Black color for the elastic
+        shapeRenderer.setColor(0, 0, 0, 1); // black color for the elastic
 
         for (Bird bird : birds) {
             if (bird.isDragging()) {
                 Vector2 position = bird.getPositionVector();
                 Vector2 slingshotPosition = bird.getSlingshotPosition();
 
-                // Draw line from slingshot to bird
+                // draw line from slingshot to bird
                 shapeRenderer.line(slingshotPosition.x, slingshotPosition.y, position.x, position.y);
+                // implement a collection of sprites that can go back and forth.(clock same as that of bird)
             }
         }
+
+
 
         shapeRenderer.end();
     }
@@ -311,49 +348,43 @@ public class GamePlayScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        // Update the game logic
+        // game logic
         if (!isPaused) {
-            // Update game logic, animations, etc.
-            // Example: updateGame(delta);
+//            updateGame(delta); // to be implemented
             checkGameState(); // Check for game over or level completion
         }
 
-
-        ScreenUtils.clear(1,1,1,1);
-
+        ScreenUtils.clear(0,0,0,1);
         batch.setProjectionMatrix(stage.getCamera().combined);
-
         batch.begin();
-
-        // Accumulate delta time to control the frame switch rate
+        // accumulte all small delta time
         timeSinceLastFrame += delta;
 
-        // Switch frame if enough time has passed
-        if (timeSinceLastFrame >= frameDuration) {
+        // switch frame if required time has passed
+        if(timeSinceLastFrame >= frameDuration){
             currentFrame++;
-            if (currentFrame >= MAX_FRAMES) {
-                currentFrame = 1; // Reset to first frame
+            if(currentFrame >= MAX_FRAMES){
+                currentFrame = 1; // move back to first frame
             }
-            timeSinceLastFrame = 0f; // Reset the time counter
+            timeSinceLastFrame = 0f; //reset
         }
 
-        // Draw the current frame
+        //draw the current frame
         TextureRegion currentFrameRegion = textureAtlas.findRegion(String.format("%03d", currentFrame));
-        batch.draw(currentFrameRegion, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());  // Adjust to fit viewport
+        batch.draw(currentFrameRegion, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
 
-        // Draw the slingshot
         batch.draw(slingshotTexture, 125, 50, 50, 100);
 
-        // Check if level is completed and handle the delay
-        if (levelCompleted) {
+        if(levelCompleted){
             levelCompleteTimer += delta;
-            if (levelCompleteTimer >= LEVEL_COMPLETE_DELAY) {
-                if (pigs.size == 0) {
+            if (levelCompleteTimer >= LEVEL_COMPLETE_DELAY){
+                if (pigs.size == 0){
                     uiManager.showLevelCompleteScreen(level);
-                } else {
+                }
+                else{
                     uiManager.showGameOverScreen(level);
                 }
-                levelCompleted = false; // Reset for the next level
+                levelCompleted = false; //reset
             }
         }
 
@@ -362,30 +393,29 @@ public class GamePlayScreen extends ScreenAdapter {
         stage.act(delta);
         stage.draw();
 
-        // Draw the slingshot elastic
         drawSlingshotElastic();
 
-        // Draw trajectory prediction if the bird is being dragged
-        if (currentBird != null && currentBird.isDragging()) {
+        // draw trajectory prediction if the bird is being dragged, to be implemented
+        if(currentBird != null && currentBird.isDragging()) {
             drawTrajectory(currentBird);
         }
 
-        // Check for bird special ability
-        if (Gdx.input.justTouched()) {
+        // check for bird special ability. to be implemented correctly. giving error as ofnow
+        if(Gdx.input.justTouched()) {
             for (Bird bird : birds) {
                 if (bird.isLaunched && !bird.isDragging()) {
-                    bird.activateSpecialAbility();
+//                    bird.activateSpecialAbility(); // to be implemented
                 }
             }
         }
 
-        // Check if current bird has been launched and is no longer active
+        // check if current bird has been launched and is no longer active
         if (currentBird != null && !stage.getActors().contains(currentBird, true)) {
             setNextBird();
         }
     }
 
-
+    //not required for now.
     private void drawTrajectory(Bird bird) {
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -400,7 +430,6 @@ public class GamePlayScreen extends ScreenAdapter {
         Vector2 velocity = new Vector2(initialVelocity);
 
         for (int i = 0; i < maxSteps; i++) {
-            // Update position and velocity
             position.mulAdd(velocity, timeStep);
             velocity.y += bird.gravity * timeStep;
 
@@ -412,13 +441,17 @@ public class GamePlayScreen extends ScreenAdapter {
                 break;
             }
         }
+        // implement the trajectory to stay ever after bird is lanuched
+        // remove the trajectory after next brid is laucnched.
+        // allow 2 trjaectories, one last, one new for more accurate launching
+        // maybe implement trajectory as an add on.
 
         shapeRenderer.end();
     }
 
 
     private void checkGameState() {
-        // Remove pigs that have been destroyed
+        // removing pigs that have been destroyed
         for (int i = pigs.size - 1; i >= 0; i--) {
             Pig pig = pigs.get(i);
             if (!stage.getActors().contains(pig, true)) {
@@ -426,7 +459,7 @@ public class GamePlayScreen extends ScreenAdapter {
             }
         }
 
-        // Remove birds that have been launched and are no longer active
+        // removing birds that have been launched and are no longer active
         for (int i = birds.size - 1; i >= 0; i--) {
             Bird bird = birds.get(i);
             if (!stage.getActors().contains(bird, true)) {
@@ -434,7 +467,7 @@ public class GamePlayScreen extends ScreenAdapter {
             }
         }
 
-        // Check if the level is completed
+        // Check if the level is completed(implement)
         if (!levelCompleted) {
             if (pigs.size == 0) {
                 levelCompleteSound.play();

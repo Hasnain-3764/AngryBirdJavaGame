@@ -12,7 +12,7 @@ public class LevelManager {
             case 4:
                 return new Level4();
             default:
-                return new Level1(); // Default to Level 1
+                return new Level1(); // default is level 1
         }
     }
 }

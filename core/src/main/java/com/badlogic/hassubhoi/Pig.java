@@ -13,18 +13,18 @@ public abstract class Pig extends Image {
         super(texture);
         this.texture = texture;
         this.health = health;
-        setSize(100, 100); // Adjust size as needed
+        setSize(100, 100); // adjust size here
     }
 
     public void takeDamage(int damage) {
         health -= damage;
         if (health <= 0) {
             remove();
-            // Optionally, play an animation or sound
+            //implemnet
         }
     }
 
-    // Add this method to define getBoundingRectangle
+    // ddd this method to define getBoundingRectangle
     public Rectangle getBoundingRectangle() {
         return new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
@@ -32,7 +32,8 @@ public abstract class Pig extends Image {
     @Override
     public void act(float delta) {
         super.act(delta);
-        // Pigs are stationary, unless you want them to fall due to gravity
+        // not implemented.
+        // pigs are stationary for now
     }
     public Texture getTexture() {
         return texture;

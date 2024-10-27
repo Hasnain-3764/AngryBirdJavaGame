@@ -6,7 +6,7 @@ public class UIManager {
 
     public UIManager(AngryBirdGames game) {
         this.game = game;
-        this.selectedBackground = "Level2.png"; // Default background
+        this.selectedBackground = "Level2.png"; // default background
 
     }
 

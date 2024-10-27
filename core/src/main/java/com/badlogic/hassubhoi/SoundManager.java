@@ -1,4 +1,3 @@
-// File: SoundManager.java
 package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.audio.Music;
@@ -13,7 +12,7 @@ public class SoundManager {
     private Music backgroundMusic;
 
     private SoundManager() {
-        soundsEnabled = true; // Default settings
+        soundsEnabled = true; // default settings
         musicEnabled = true;
     }
 

@@ -40,28 +40,28 @@ public class SplashScreen implements Screen {
     private Skin skin;
     private int currentFrame = 0;
     private int MAX_FRAMES = 5;
-    private float frameDuration = 0.95f; // Duration of each frame in seconds
+    private float frameDuration = 0.95f; // duration of each frame in seconds
     private float timeSinceLastFrame = 0f;
 
     public SplashScreen(AngryBirdGames game) {
         this.game = game;
         batch = new SpriteBatch();
-        image = new Texture("load.png");
+        image = new Texture("splashScreen.png");
         sprite = new Sprite(image);
 
-        // Set up the camera and viewport
+        // set up the camera and viewport
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         viewport.apply();
 
         startTime = TimeUtils.millis();
 
-        // Scale the sprite to be a percentage of the screen
+        // scale the sprite to be a percentage of the screen
         float screenWidth = VIRTUAL_WIDTH;
         float screenHeight = VIRTUAL_HEIGHT;
         float aspectRatio = image.getWidth() / (float) image.getHeight();
 
-        // Adjust sprite size based on viewport size
+        // adjust sprite size based on viewport size
         float factor = 0.95f; // percent of screen covered
         sprite.setSize(screenWidth * factor, (screenWidth * factor) / aspectRatio);
         sprite.setPosition(
@@ -74,7 +74,7 @@ public class SplashScreen implements Screen {
         loadingSprite = new Sprite(textureRegion);
         loadingSprite.setPosition(
             viewport.getWorldWidth() / 2f - loadingSprite.getWidth() / 2f,
-            viewport.getWorldHeight() / 10f // Set a margin based on the viewport height
+            viewport.getWorldHeight() / 10f
         );
 
     }
@@ -87,66 +87,55 @@ public class SplashScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(1f, 1f, 1f, 1f);  // Clear to white or another background color
-
-        // Update the camera
+        ScreenUtils.clear(1f, 1f, 1f, 1f);  // clear background
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-
         batch.begin();
-
-        // Draw the background image
         batch.draw(image, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
 
-        // Accumulate time and switch frame if enough time has passed
+        // accumulate time and switch frame if enough time has passed
         timeSinceLastFrame += delta;
         if (timeSinceLastFrame >= frameDuration) {
             currentFrame++;
             if (currentFrame > MAX_FRAMES) {
-                currentFrame = 0; // Loop back to the first frame
+                currentFrame = 0;
             }
-            timeSinceLastFrame = 0f; // Reset the time counter
+            timeSinceLastFrame = 0f;
         }
 
-        // Retrieve the current frame from the atlas
+        // sprite animation logic
+        // since rendering is done too fast, using 0.1f of rendering speed.
         TextureRegion currentFrameRegion = textureAtlas.findRegion(String.format("%03d", currentFrame));
-
-        // Draw loading animation frame if it's not null
         if (currentFrameRegion != null) {
             batch.draw(currentFrameRegion, loadingSprite.getX(), loadingSprite.getY(), loadingSprite.getWidth(), loadingSprite.getHeight());
         }
-
         batch.end();
 
-        // Handle stage updates
+        // handle stage updates
         stage.act(delta);
         stage.draw();
 
-        // Optionally, transition to the main menu after timeout or on touch input
+        // automatically go to main menu aftre 5 sec
         if (Gdx.input.justTouched() || TimeUtils.timeSinceMillis(startTime) > 5000) {
             game.getUIManager().showMainMenu();  // Transition to main menu
         }
     }
 
 
-    @Override
+    @Override // using aspect ratio to maintain different window sizes
     public void resize(int width, int height) {
         viewport.update(width, height, true);
-
-        // Adjust background size and position
         sprite.setSize(width * 0.95f, (width * 0.95f) / (image.getWidth() / (float) image.getHeight()));
         sprite.setPosition(
             (viewport.getWorldWidth() - sprite.getWidth()) / 2,
             (viewport.getWorldHeight() - sprite.getHeight()) / 2
         );
 
-        // Scale loading bar to fit the width and maintain aspect ratio
-        float loadingBarWidth = viewport.getWorldWidth() * 0.8f; // Covering 80% of screen width
+        float loadingBarWidth = viewport.getWorldWidth() * 0.8f; // covering 80% of screen width
         float aspectRatio = loadingSprite.getWidth() / loadingSprite.getHeight();
-        float loadingBarHeight = loadingBarWidth / (aspectRatio*1.3f);
+        float loadingBarHeight = loadingBarWidth / (aspectRatio*1.5f);
 
-        // Position the loading bar at the bottom center with a margin
-        float bottomMargin = viewport.getWorldHeight() / 10f; // 10% margin from the bottom
+        float bottomMargin = viewport.getWorldHeight() / 12f; // 10% margin from below
         loadingSprite.setSize(loadingBarWidth, loadingBarHeight);
         loadingSprite.setPosition(
             (viewport.getWorldWidth() - loadingBarWidth) / 2,

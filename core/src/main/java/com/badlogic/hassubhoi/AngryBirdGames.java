@@ -15,14 +15,10 @@ public class AngryBirdGames extends Game {
     @Override
     public void create() {
         uiManager = new com.badlogic.hassubhoi.UIManager(this);
-        // Get the current display mode (resolution, refresh rate, etc.)
-//        DisplayMode displayMode = Gdx.graphics.getDisplayMode();
-        // Set the window to full screen
-//        Gdx.graphics.setFullscreenMode(displayMode);
-        // Show splash screen or start screen
+
         uiManager.showSplashScreen();
 
-        // Load and play background music
+        // load and play background music
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background_music.mp3"));
 //        backgroundMusic.setLooping(true);
 //        backgroundMusic.play();
@@ -43,13 +39,11 @@ public class AngryBirdGames extends Game {
     public void render() {
         super.render();
 
-        // Toggle fullscreen mode when F11 is pressed
+        // fullscreen mode when F11 is pressed
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
             if (Gdx.graphics.isFullscreen()) {
-                // Exit full screen
-                Gdx.graphics.setWindowedMode(800, 600); // Set the size you want in windowed mode
+                Gdx.graphics.setWindowedMode(800, 480);
             } else {
-                // Enter full screen
                 DisplayMode displayMode = Gdx.graphics.getDisplayMode();
                 Gdx.graphics.setFullscreenMode(displayMode);
             }
@@ -62,7 +56,7 @@ public class AngryBirdGames extends Game {
     @Override
     public void dispose() {
         super.dispose();
-        // Dispose of the background music
+        // dispose background music
         if (backgroundMusic != null) {
             backgroundMusic.dispose();
         }

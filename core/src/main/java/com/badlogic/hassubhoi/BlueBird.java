@@ -14,24 +14,22 @@ public class BlueBird extends Bird {
     public void activateSpecialAbility() {
         if (!hasSplit) {
             hasSplit = true;
-            // Split into three birds
+            // split into three birds
             Stage stage = getStage();
             if (stage != null) {
-                // Create two additional blue birds
+                // creating two additional blue birds
                 BlueBird bird1 = new BlueBird(texture);
                 BlueBird bird2 = new BlueBird(texture);
 
-                // Set their positions and velocities
                 bird1.position.set(this.position);
                 bird2.position.set(this.position);
 
-                bird1.velocity.set(this.velocity.cpy().rotate(15)); // Adjust angle as needed
+                bird1.velocity.set(this.velocity.cpy().rotate(30)); // choose angle as needed
                 bird2.velocity.set(this.velocity.cpy().rotate(-15));
 
                 bird1.isLaunched = true;
                 bird2.isLaunched = true;
 
-                // Add them to the stage
                 stage.addActor(bird1);
                 stage.addActor(bird2);
             }
