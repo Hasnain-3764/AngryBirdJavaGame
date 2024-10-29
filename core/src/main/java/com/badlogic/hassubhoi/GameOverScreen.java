@@ -125,6 +125,17 @@ public class GameOverScreen extends ScreenAdapter {
         retryButton = new TextButton("Retry", textButtonStyle);
         mainMenuButton = new TextButton("Main Menu", textButtonStyle);
 
+        exitButton.addListener(new ClickListener(){
+            public void clicked(InputEvent event, float x , float y){
+                Gdx.app.exit();
+            }
+        });
+        settingsButton.addListener(new ClickListener(){
+            public void clicked(InputEvent event, float x, float y){
+                uiManager.showSettingsScreen();
+            }
+        });
+
         retryButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

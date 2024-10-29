@@ -213,6 +213,18 @@ public class LevelCompleteScreen extends ScreenAdapter {
         stage.addActor(table2);
 
         // listeners
+        exitButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                Gdx.app.exit();
+            }
+        });
+        settingsButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x , float y){
+                uiManager.showSettingsScreen();
+            }
+        });
         nextLevelButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
