@@ -68,4 +68,16 @@ public class SoundManager {
             backgroundMusic.dispose();
         }
     }
+
+    public void pauseBackgroundMusic() {
+        if (backgroundMusic != null && backgroundMusic.isPlaying()) {
+            backgroundMusic.pause();
+        }
+    }
+
+    public void resumeBackgroundMusic() {
+        if (backgroundMusic != null && musicEnabled) {
+            backgroundMusic.play();
+        }
+    }
 }

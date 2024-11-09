@@ -25,6 +25,8 @@ public abstract class Bird extends Image {
     protected final Vector2 slingshotPosition = new Vector2(150, 150);
     protected final Vector2 groundLevel = new Vector2(0, 50);
 
+    private boolean isPaused = false;
+
     public Bird(Texture texture) {
         super(texture);
         this.texture = texture;
@@ -39,9 +41,13 @@ public abstract class Bird extends Image {
         isLaunched = false;
         setPosition(position.x - getWidth() / 2, position.y - getHeight() / 2);
     }
+
     // not required as of now
     @Override
     public void act(float delta) {
+        if (isPaused) {
+            return;  // Skip updates if the game is paused
+        }
         super.act(delta);
 
         if (isLaunched) {
@@ -80,6 +86,10 @@ public abstract class Bird extends Image {
                 }
             }
         }
+    }
+
+    public void setPaused(boolean paused) {
+        this.isPaused = paused;
     }
 
     public Rectangle getBoundingRectangle() {

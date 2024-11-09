@@ -8,6 +8,7 @@ public class BlueBird extends Bird {
 
     public BlueBird(Texture texture) {
         super(texture);
+        setSize(70,70);
     }
 
     @Override
@@ -24,7 +25,8 @@ public class BlueBird extends Bird {
                 bird1.position.set(this.position);
                 bird2.position.set(this.position);
 
-                bird1.velocity.set(this.velocity.cpy().rotate(30)); // choose angle as needed
+                float speedMultiplier = 1.5f;
+                bird1.velocity.set(this.velocity.cpy().rotate(15)); // choose angle as needed
                 bird2.velocity.set(this.velocity.cpy().rotate(-15));
 
                 bird1.isLaunched = true;

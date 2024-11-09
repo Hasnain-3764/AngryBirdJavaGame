@@ -4,16 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
@@ -24,11 +23,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 public class GamePlayScreen extends ScreenAdapter {
     private UIManager uiManager;
     private Stage stage;
-    private Skin skin;
+//    private Skin skin;
     private ImageButton soundButton;
     private FitViewport viewport;
     private SpriteBatch batch;
@@ -82,6 +82,11 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private Texture levelHeader;
     private Image levelHeaderImage;
+
+    private Stage pauseStage;
+    private Table pauseTable;
+
+    private BitmapFont buttonFont;
 
     public GamePlayScreen(UIManager uiManager, int level) {
         System.out.println("Initializing GamePlayScreen for level: " + level);
@@ -141,7 +146,7 @@ public class GamePlayScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+//        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         // loading all button textures
         Texture pauseTexture = new Texture(Gdx.files.internal("buttonPro/pauseButton.png"));
@@ -189,11 +194,7 @@ public class GamePlayScreen extends ScreenAdapter {
         playPauseToggleButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                togglePauseGame(); // to be implemented
-                // for now, just toggling sounds
-                boolean isChecked = playPauseToggleButton.isChecked();
-                SoundManager.getInstance().setMusicEnabled(!isChecked);
-                SoundManager.getInstance().setSoundsEnabled(!isChecked);
+                togglePauseGame();
             }
         });
 
@@ -215,7 +216,7 @@ public class GamePlayScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 uiManager.showLevelSelectScreen();
-//                uiManager.showLevelCompleteScreen(level);
+                uiManager.showLevelCompleteScreen(level);
             }
         });
         levelCompleteButton.addListener(new ClickListener(){
@@ -273,19 +274,111 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private void togglePauseGame() {
         isPaused = !isPaused;
+        updatePausedStateForBirds(isPaused);
         if (isPaused) {
-            uiManager.showGamePauseScreen(level);
-//            pauseButton.setText("Resume");
-
-            // Stop sounds
-//            SoundManager.getInstance().pauseAllSounds(); // to be implemented
-            // pause animations or game logic
+            SoundManager.getInstance().pauseBackgroundMusic();  // Pause background music
+            showPauseMenu();
         } else {
+            SoundManager.getInstance().resumeBackgroundMusic();  // Resume background music
+            hidePauseMenu();
+        }
+    }
 
-//            pauseButton.setText("Pause");
-            // Resume sounds
-//            SoundManager.getInstance().resumeAllSounds(); // to be implememnted
-            // resume animations or game logic
+    private void showPauseMenu() {
+        if (pauseStage == null) {
+            pauseStage = new Stage(viewport, batch);
+
+            // create a semi-transparent background
+            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            pixmap.setColor(0, 0.1f, 0.1f, 0.5f); // Black with 50% opacity
+            pixmap.fill();
+            Texture dimBackgroundTexture = new Texture(pixmap);
+            pixmap.dispose();
+            Image dimBackground = new Image(dimBackgroundTexture);
+            dimBackground.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+
+            // Create buttons
+            Texture buttonUpTexture = new Texture("buttonPro/platter.png");
+            Texture buttonDownTexture = new Texture("buttonPro/platterDark.png");
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/angrybirds-regular.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+            parameter.size = 36;
+            parameter.color = Color.BLACK;
+            parameter.borderWidth = 1;
+            parameter.borderColor = Color.WHITE;
+            buttonFont = generator.generateFont(parameter);
+            generator.dispose();
+
+            TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+            buttonStyle.font = buttonFont;
+            buttonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonUpTexture));
+            buttonStyle.down = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
+
+
+            TextButton resumeButton = new TextButton("Resume", buttonStyle);
+            TextButton mainMenuButton = new TextButton("Main Menu", buttonStyle);
+            TextButton exitButton = new TextButton("Exit", buttonStyle);
+            TextButton settingsButton = new TextButton("Settings", buttonStyle);
+
+            // Add listeners to buttons
+            resumeButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseGame();
+                }
+            });
+            mainMenuButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    uiManager.showMainMenu();
+                }
+            });
+            exitButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Gdx.app.exit();
+                }
+            });
+            settingsButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    uiManager.showSettingsScreen();
+                }
+            });
+
+            // Arrange buttons in a table
+            pauseTable = new Table();
+            pauseTable.setFillParent(true);
+            pauseTable.center();
+
+            pauseTable.add(resumeButton).size(200, 50).pad(10);
+            pauseTable.row();
+            pauseTable.add(mainMenuButton).size(200, 50).pad(10);
+            pauseTable.row();
+            pauseTable.add(settingsButton).size(200, 50).pad(10);
+            pauseTable.row();
+            pauseTable.add(exitButton).size(200, 50).pad(10);
+
+            // Add actors to pauseStage
+            pauseStage.addActor(dimBackground);
+            pauseStage.addActor(pauseTable);
+        }
+
+        playPauseToggleButton.setChecked(true);
+        // Set input processor to pauseStage
+        Gdx.input.setInputProcessor(pauseStage);
+    }
+
+    private void hidePauseMenu() {
+        // Restore input processor to game stage
+        playPauseToggleButton.setChecked(false);  // Set to "pause" state
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    public void updatePausedStateForBirds(boolean paused) {
+        for (Bird bird : birds) {
+            bird.setPaused(paused);  // this will set the paused state in each Bird object
         }
     }
 
@@ -353,7 +446,8 @@ public class GamePlayScreen extends ScreenAdapter {
     public void render(float delta) {
         // game logic
         if (!isPaused) {
-//            updateGame(delta); // to be implemented
+            updateGame(delta); // to be implemented
+            stage.act(delta);
             checkGameState(); // Check for game over or level completion
         }
 
@@ -375,7 +469,6 @@ public class GamePlayScreen extends ScreenAdapter {
         //draw the current frame
         TextureRegion currentFrameRegion = textureAtlas.findRegion(String.format("%03d", currentFrame));
         batch.draw(currentFrameRegion, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-
         batch.draw(slingshotTexture, 125, 50, 50, 100);
 
         if(levelCompleted){
@@ -396,6 +489,10 @@ public class GamePlayScreen extends ScreenAdapter {
         stage.act(delta);
         stage.draw();
 
+        if (isPaused) {
+            pauseStage.act(delta);
+            pauseStage.draw();
+        }
         drawSlingshotElastic();
 
         // draw trajectory prediction if the bird is being dragged, to be implemented
@@ -407,7 +504,7 @@ public class GamePlayScreen extends ScreenAdapter {
         if(Gdx.input.justTouched()) {
             for (Bird bird : birds) {
                 if (bird.isLaunched && !bird.isDragging()) {
-//                    bird.activateSpecialAbility(); // to be implemented
+                    bird.activateSpecialAbility(); // to be implemented
                 }
             }
         }
@@ -417,6 +514,17 @@ public class GamePlayScreen extends ScreenAdapter {
             setNextBird();
         }
     }
+
+    private void updateGame(float delta) {
+        if (isPaused) {
+            return;
+        }
+    }
+
+    public boolean isGamePaused() {
+        return isPaused;
+    }
+
 
     //not required for now.
     private void drawTrajectory(Bird bird) {
@@ -500,7 +608,7 @@ public class GamePlayScreen extends ScreenAdapter {
         platform.dispose();
         slingshotTexture.dispose();
         stage.dispose();
-        skin.dispose();
+//        skin.dispose();
 
         shapeRenderer.dispose();
 //        backgroundMusic.dispose();
