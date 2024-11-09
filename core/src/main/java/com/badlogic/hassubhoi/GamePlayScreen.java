@@ -274,6 +274,7 @@ public class GamePlayScreen extends ScreenAdapter {
     private void togglePauseGame() {
         isPaused = !isPaused;
         if (isPaused) {
+            uiManager.showGamePauseScreen(level);
 //            pauseButton.setText("Resume");
 
             // Stop sounds

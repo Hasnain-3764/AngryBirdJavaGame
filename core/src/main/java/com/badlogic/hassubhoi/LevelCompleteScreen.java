@@ -27,7 +27,7 @@ public class LevelCompleteScreen extends ScreenAdapter {
     private SpriteBatch batch;
     private Texture background;
     private Texture buttonUpTexture;
-    private Texture buttonDownTexture; // optional, to be implemented
+    private Texture buttonDownTexture;
 
     private BitmapFont largeBoldFont;
     private BitmapFont mediumFont;
@@ -39,12 +39,10 @@ public class LevelCompleteScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
 
-
     private TextButton nextLevelButton;
     private TextButton mainMenuButton;
     private Table table;
     private Sprite backgroundSprite;
-
 
     private Texture exitTexture;
     private Texture settinsTexture;
@@ -193,6 +191,7 @@ public class LevelCompleteScreen extends ScreenAdapter {
         starTable.add(starToggleButton1).size(50, 50).pad(5);
         starTable.add(starToggleButton2).size(50, 50).pad(5);
         starTable.add(starToggleButton3).size(50, 50).pad(5);
+
         table.add(starTable).colspan(3).center().padBottom(20);
 
 //        table.row();
