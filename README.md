@@ -1,4 +1,3 @@
-// restarting again
 # AngryBirds
 This is an attempt to clone the static GUI of Classic Angry Bird Game with some modifications.
 

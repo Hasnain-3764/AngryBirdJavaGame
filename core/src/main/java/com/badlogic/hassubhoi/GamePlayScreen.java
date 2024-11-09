@@ -189,7 +189,7 @@ public class GamePlayScreen extends ScreenAdapter {
         playPauseToggleButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                togglePauseGame(); // to be implemented
+                togglePauseGame(); // to be implemented
                 // for now, just toggling sounds
                 boolean isChecked = playPauseToggleButton.isChecked();
                 SoundManager.getInstance().setMusicEnabled(!isChecked);
@@ -271,14 +271,16 @@ public class GamePlayScreen extends ScreenAdapter {
     }
 
 
-    private void togglePause() {
+    private void togglePauseGame() {
         isPaused = !isPaused;
         if (isPaused) {
 //            pauseButton.setText("Resume");
+
             // Stop sounds
 //            SoundManager.getInstance().pauseAllSounds(); // to be implemented
             // pause animations or game logic
         } else {
+
 //            pauseButton.setText("Pause");
             // Resume sounds
 //            SoundManager.getInstance().resumeAllSounds(); // to be implememnted
