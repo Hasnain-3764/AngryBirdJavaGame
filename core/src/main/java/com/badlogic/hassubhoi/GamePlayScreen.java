@@ -2,15 +2,14 @@ package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -88,6 +87,13 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private BitmapFont buttonFont;
 
+
+    private World world;
+    private Box2DDebugRenderer debugRenderer;
+    private OrthographicCamera camera;
+
+    private final float pixelsToMeters = 32;
+
     public GamePlayScreen(UIManager uiManager, int level) {
         System.out.println("Initializing GamePlayScreen for level: " + level);
         this.uiManager = uiManager;
@@ -146,7 +152,39 @@ public class GamePlayScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+
+        world = new World(new Vector2(0, -9.81f), true);
+        debugRenderer = new Box2DDebugRenderer();
+        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 //        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
+
+
+        // body definition
+        BodyDef balldef = new BodyDef();
+        balldef.type = BodyDef.BodyType.DynamicBody;
+        balldef.position.set(0,1); // this is 1 meters.
+//        balldef.position.set(0, 500/pixelsToMeters)
+
+        // ball shape(circle)
+        CircleShape shape = new CircleShape();
+        shape.setRadius(0.25f);
+
+        // fixture definition
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = null;
+        fixtureDef.density = 2.5f; // 2.5 kg in 1 square meter.
+        fixtureDef.friction = 0.25f;
+        fixtureDef.restitution = 0.75f;
+
+        world.createBody(balldef).createFixture(fixtureDef); // or
+//        Fixture fixture = ball.createFixture(fixtureDef);
+        // or
+//        world.createBody(balldef).createFixture(fixtureDef);
+
+        shape.dispose();
+
 
         // loading all button textures
         Texture pauseTexture = new Texture(Gdx.files.internal("buttonPro/pauseButton.png"));
@@ -452,6 +490,8 @@ public class GamePlayScreen extends ScreenAdapter {
         }
 
         ScreenUtils.clear(0,0,0,1);
+        debugRenderer.render(world, camera.combined);
+
         batch.setProjectionMatrix(stage.getCamera().combined);
         batch.begin();
         // accumulte all small delta time
@@ -600,6 +640,10 @@ public class GamePlayScreen extends ScreenAdapter {
     }
 
 
+    @Override
+    public void hide(){
+        dispose();
+    }
 
     @Override
     public void dispose() {

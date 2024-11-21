@@ -38,6 +38,8 @@ public class UIManager {
         game.setScreen(new SettingsScreen(this));
     }
 
+    public void showDebugScreen(){game.setScreen(new Play(this));}
+
     public void showGamePauseScreen(int level){ game.setScreen(new PauseScreen(this, level));}
 
     public String getSelectedBackground() {
@@ -47,4 +49,5 @@ public class UIManager {
     public void setSelectedBackground(String background) {
         this.selectedBackground = background;
     }
+
 }

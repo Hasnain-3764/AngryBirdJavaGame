@@ -78,29 +78,31 @@ import com.badlogic.hassubhoi.*;
 
 // levelx screen
 
-public class DebugLauncher {
-    static AngryBirdGames game;
-    public DebugLauncher(){
-        this.game = game;
-    }
-    public static void main (String[] arg) {
-        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setTitle("AngryBirdGames - Debug");
-        config.setWindowedMode(800, 480);
-        config.useVsync(true);
-        config.setForegroundFPS(60);
+//public class DebugLauncher {
+//    static AngryBirdGames game;
+//    public DebugLauncher(){
+//        this.game = game;
+//    }
+//    public static void main (String[] arg) {
+//        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+//        config.setTitle("AngryBirdGames - Debug");
+//        config.setWindowedMode(800, 480);
+//        config.useVsync(true);
+//        config.setForegroundFPS(60);
+//
+//        new Lwjgl3Application(new AngryBirdGames() {
+//            @Override
+//            public void create() {
+//                // Initialize the UIManager
+//                UIManager uiManager = new UIManager(game);
+//
+//                setScreen(new GamePlayScreen(uiManager, 1));
+//            }
+//        }, config);
+//    }
+//}
 
-        new Lwjgl3Application(new AngryBirdGames() {
-            @Override
-            public void create() {
-                // Initialize the UIManager
-                UIManager uiManager = new UIManager(game);
 
-                setScreen(new GamePlayScreen(uiManager, 1));
-            }
-        }, config);
-    }
-}
 
 // level select screen launcher
 
@@ -153,3 +155,29 @@ public class DebugLauncher {
 //        }, config);
 //    }
 //}
+
+
+// debug screen
+public class DebugLauncher {
+    static AngryBirdGames game;
+    public DebugLauncher(){
+        this.game = game;
+    }
+    public static void main (String[] arg) {
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        config.setTitle("AngryBirdGames - Debug");
+        config.setWindowedMode(800, 480);
+        config.useVsync(true);
+        config.setForegroundFPS(60);
+
+        new Lwjgl3Application(new AngryBirdGames() {
+            @Override
+            public void create() {
+                // Initialize the UIManager
+                UIManager uiManager = new UIManager(game);
+
+                setScreen(new Play(uiManager));
+            }
+        }, config);
+    }
+}
