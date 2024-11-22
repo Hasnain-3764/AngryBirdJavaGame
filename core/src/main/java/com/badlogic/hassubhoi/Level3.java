@@ -2,8 +2,15 @@ package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class Level3 extends GameLevel {
+
+    private World world;
+
+    public Level3(World world) {
+        this.world = world;
+    }
 
     @Override
     public void setupLevel() {
@@ -101,22 +108,22 @@ public class Level3 extends GameLevel {
 
         // birds
         Texture blackBirdTexture = new Texture(Gdx.files.internal("Birds/black.png"));
-        BlackBird blackBird = new BlackBird(blackBirdTexture);
+        BlackBird blackBird = new BlackBird(world, blackBirdTexture);
         blackBird.setPosition(150, 150); // Position the black bird
         addBird(blackBird);
 
         Texture blueBirdTexture = new Texture(Gdx.files.internal("Birds/blue.png"));
-        BlueBird blueBird = new BlueBird(blueBirdTexture);
+        BlueBird blueBird = new BlueBird(world, blueBirdTexture);
         blueBird.setPosition(150, 150); // Position the blue bird
         addBird(blueBird);
 
         Texture yellowBirdText1 = new Texture(Gdx.files.internal("Birds/yellow.png"));
-        YellowBird yellowBird1 = new YellowBird(yellowBirdText1);
+        YellowBird yellowBird1 = new YellowBird(world, yellowBirdText1);
         yellowBird1.setPosition(150,80);
         addBird(yellowBird1);
 
 //        Texture blueBirdTexture = new Texture(Gdx.files.internal("blue.png"));
-        BlueBird blueBird2 = new BlueBird(blueBirdTexture);
+        BlueBird blueBird2 = new BlueBird(world, blueBirdTexture);
         blueBird2.setPosition(150, 150); // Position the blue bird
         addBird(blueBird2);
 

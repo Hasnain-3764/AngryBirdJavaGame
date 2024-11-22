@@ -1,13 +1,14 @@
 package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class BlueBird extends Bird {
     private boolean hasSplit = false;
 
-    public BlueBird(Texture texture) {
-        super(texture);
+    public BlueBird(World world, Texture texture) {
+        super(world, texture);
         setSize(70,70);
     }
 
@@ -19,8 +20,8 @@ public class BlueBird extends Bird {
             Stage stage = getStage();
             if (stage != null) {
                 // creating two additional blue birds
-                BlueBird bird1 = new BlueBird(texture);
-                BlueBird bird2 = new BlueBird(texture);
+                BlueBird bird1 = new BlueBird(world, texture);
+                BlueBird bird2 = new BlueBird(world, texture);
 
                 bird1.position.set(this.position);
                 bird2.position.set(this.position);

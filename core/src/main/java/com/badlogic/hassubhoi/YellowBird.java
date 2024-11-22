@@ -1,14 +1,14 @@
 package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class YellowBird extends Bird {
     private boolean hasBoosted = false;
 
-    public YellowBird(Texture texture) {
-        super(texture);
+    public YellowBird(World world, Texture texture) {
+        super(world, texture);
     }
-
     @Override
     public void activateSpecialAbility() {
         if (!hasBoosted) {

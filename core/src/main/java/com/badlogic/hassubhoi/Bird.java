@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -22,14 +23,19 @@ public abstract class Bird extends Image {
     protected final float gravity = -980f;
     protected final float maxStretchDistance = 200f;
 
-    protected final Vector2 slingshotPosition = new Vector2(150, 150);
+    protected final Vector2 slingshotPosition = new Vector2(105, 125);
     protected final Vector2 groundLevel = new Vector2(0, 50);
 
     private boolean isPaused = false;
 
-    public Bird(Texture texture) {
+    protected World world;
+    protected Body body;
+    protected final float PIXELS_TO_METERS = 100f;
+
+    public Bird(World world, Texture texture) {
         super(texture);
         this.texture = texture;
+        this.world = world;
         setSize(100, 100);
         resetPosition();
         addListener(new BirdInputListener());
@@ -37,54 +43,90 @@ public abstract class Bird extends Image {
 
     private void resetPosition() {
         position = new Vector2(slingshotPosition);
-        velocity = new Vector2(0, 0);
-        isLaunched = false;
+//        velocity = new Vector2(0, 0);
+//        isLaunched = false;
         setPosition(position.x - getWidth() / 2, position.y - getHeight() / 2);
+        createBody();
     }
 
-    // not required as of now
+    protected void createBody() {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(position.x / PIXELS_TO_METERS, position.y / PIXELS_TO_METERS);
+
+        body = world.createBody(bodyDef);
+
+        CircleShape shape = new CircleShape();
+        shape.setRadius((getWidth() / 2) / PIXELS_TO_METERS);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.5f;
+        fixtureDef.restitution = 0.3f;
+
+        body.createFixture(fixtureDef);
+        body.setUserData(this);
+        body.setGravityScale(0f);
+        shape.dispose();
+    }
+
+
+//    @Override
+//    public void act(float delta) {
+//        if (isPaused) {
+//            return;  // Skip updates if the game is paused
+//        }
+//        super.act(delta);
+//
+//        if (isLaunched) {
+//            velocity.y += gravity * delta;
+//            position.mulAdd(velocity, delta);
+//
+//            //  collision with ground
+//            if (position.y <= groundLevel.y) {
+//                position.y = groundLevel.y;
+//                isLaunched = false;
+//                // remove the bird if it lands
+//                remove();
+//            }
+//            setPosition(position.x - getWidth() / 2, position.y - getHeight() / 2);
+//
+//            // check for collisions with pigs and structures
+//            if (getStage() != null) {
+//                Actor[] actorsArray = getStage().getActors().toArray(Actor.class);
+//                for (Actor actor : actorsArray) {
+//                    if (actor instanceof Pig) {
+//                        Pig pig = (Pig) actor;
+//                        if (this.getBoundingRectangle().overlaps(pig.getBoundingRectangle())) {
+//                            pig.takeDamage(10); //adjust damage value as needed
+//                            remove();
+//                            break;
+//                        }
+//                    } else if (actor instanceof Structure) {
+//                        Structure structure = (Structure) actor;
+//                        if (this.getBoundingRectangle().overlaps(structure.getBoundingRectangle())) {
+//                            structure.takeDamage(5);
+//                            // removing bird since it collided
+//                            remove();
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     @Override
     public void act(float delta) {
         if (isPaused) {
-            return;  // Skip updates if the game is paused
+            return;
         }
         super.act(delta);
 
-        if (isLaunched) {
-            velocity.y += gravity * delta;
-            position.mulAdd(velocity, delta);
-
-            //  collision with ground
-            if (position.y <= groundLevel.y) {
-                position.y = groundLevel.y;
-                isLaunched = false;
-                // remove the bird if it lands
-                remove();
-            }
-            setPosition(position.x - getWidth() / 2, position.y - getHeight() / 2);
-
-            // check for collisions with pigs and structures
-            if (getStage() != null) {
-                Actor[] actorsArray = getStage().getActors().toArray(Actor.class);
-                for (Actor actor : actorsArray) {
-                    if (actor instanceof Pig) {
-                        Pig pig = (Pig) actor;
-                        if (this.getBoundingRectangle().overlaps(pig.getBoundingRectangle())) {
-                            pig.takeDamage(10); //adjust damage value as needed
-                            remove();
-                            break;
-                        }
-                    } else if (actor instanceof Structure) {
-                        Structure structure = (Structure) actor;
-                        if (this.getBoundingRectangle().overlaps(structure.getBoundingRectangle())) {
-                            structure.takeDamage(5);
-                            // removing bird since it collided
-                            remove();
-                            break;
-                        }
-                    }
-                }
-            }
+        if (body != null) {
+            setPosition((body.getPosition().x * PIXELS_TO_METERS) - getWidth() / 2,
+                (body.getPosition().y * PIXELS_TO_METERS) - getHeight() / 2);
         }
     }
 
@@ -111,6 +153,20 @@ public abstract class Bird extends Image {
             return false;
         }
 
+//        @Override
+//        public void touchDragged(InputEvent event, float x, float y, int pointer) {
+//            if (isDragging) {
+//                Vector2 stageCoordinates = new Vector2(event.getStageX(), event.getStageY());
+//                Vector2 dragVector = stageCoordinates.cpy().sub(slingshotPosition);
+//                if (dragVector.len() > maxStretchDistance) {
+//                    dragVector.nor().scl(maxStretchDistance);
+//                }
+//                position = slingshotPosition.cpy().add(dragVector);
+//                setPosition(position.x - getWidth() / 2, position.y - getHeight() / 2);
+//                body.setTransform(position.x / PIXELS_TO_METERS, position.y / PIXELS_TO_METERS, 0);
+//            }
+//        }
+
         @Override
         public void touchDragged(InputEvent event, float x, float y, int pointer) {
             if (isDragging) {
@@ -121,8 +177,12 @@ public abstract class Bird extends Image {
                 }
                 position = slingshotPosition.cpy().add(dragVector);
                 setPosition(position.x - getWidth() / 2, position.y - getHeight() / 2);
+
+                // Update Box2D body position (in meters)
+                body.setTransform(position.x / PIXELS_TO_METERS, position.y / PIXELS_TO_METERS, 0);
             }
         }
+
 
         @Override
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
@@ -141,11 +201,39 @@ public abstract class Bird extends Image {
     }
 
 
+//    private void launchBird() {
+//        Vector2 launchVector = slingshotPosition.cpy().sub(position);
+//        float launchPower = launchVector.len() * 5f; // Adjust scaling factor as needed
+//
+//        Vector2 launchVelocity = launchVector.nor().scl(launchPower / PIXELS_TO_METERS);
+//        System.out.println("Launching bird with velocity: " + launchVelocity); // Debug Statement
+//
+//        // Enable gravity
+//        body.setGravityScale(1f);
+//        // Apply linear velocity
+//        body.setLinearVelocity(launchVelocity);
+//
+//        isLaunched = true;
+//    }
+
     private void launchBird() {
-        Vector2 launchVector = slingshotPosition.cpy().sub(position);
-        float launchPower = launchVector.len() * 8f;
-        velocity = launchVector.nor().scl(launchPower);
+        Vector2 launchVector = slingshotPosition.cpy().sub(position); // Calculate the direction
+        float launchPower = launchVector.len() * 5f; // Adjust scaling factor (tweak as needed)
+
+        Vector2 launchVelocity = launchVector.nor().scl(launchPower / PIXELS_TO_METERS); // Convert to meters/second
+        System.out.println("Launching bird with velocity: " + launchVelocity); // Debug Statement
+
+        // Enable gravity
+        body.setGravityScale(1f);
+        // Apply linear velocity
+        body.setLinearVelocity(launchVelocity);
+
         isLaunched = true;
+    }
+
+
+    public boolean isLaunched() {
+        return isLaunched;
     }
 
     public boolean isDragging() {

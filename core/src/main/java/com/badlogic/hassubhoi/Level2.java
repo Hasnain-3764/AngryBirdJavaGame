@@ -2,8 +2,15 @@ package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class Level2 extends GameLevel {
+
+    private World world;
+
+    public Level2(World world) {
+        this.world = world;
+    }
 
     @Override
     public void setupLevel() {
@@ -75,36 +82,36 @@ public class Level2 extends GameLevel {
 
         // Add birds
         Texture redBirdText1 = new Texture(Gdx.files.internal("Birds/red.png"));
-        RedBird redBird1 = new RedBird(redBirdText1);
+        RedBird redBird1 = new RedBird(world, redBirdText1);
         redBird1.setPosition(150,0);
         addBird(redBird1);
 
-        RedBird redBird2 = new RedBird(redBirdText1);
+        RedBird redBird2 = new RedBird(world, redBirdText1);
         redBird2.setPosition(150,0);
         addBird(redBird2);
 
-        RedBird redBird3 = new RedBird(redBirdText1);
+        RedBird redBird3 = new RedBird(world, redBirdText1);
         redBird3.setPosition(150,0);
         addBird(redBird3);
 
 
 
         Texture blueBirdTexture = new Texture(Gdx.files.internal("Birds/blue.png"));
-        BlueBird blueBird = new BlueBird(blueBirdTexture);
+        BlueBird blueBird = new BlueBird(world, blueBirdTexture);
         blueBird.setPosition(150, 150); // Position the blue bird
         addBird(blueBird);
 
-        BlueBird blueBird2 = new BlueBird(blueBirdTexture);
+        BlueBird blueBird2 = new BlueBird(world, blueBirdTexture);
         blueBird2.setPosition(150, 150); // Position the blue bird
         addBird(blueBird2);
 
 
         Texture yellowBirdText1 = new Texture(Gdx.files.internal("Birds/yellow.png"));
-        YellowBird yellowBird1 = new YellowBird(yellowBirdText1);
+        YellowBird yellowBird1 = new YellowBird(world, yellowBirdText1);
         yellowBird1.setPosition(150,80);
         addBird(yellowBird1);
 
-        YellowBird yellowBird2 = new YellowBird(yellowBirdText1);
+        YellowBird yellowBird2 = new YellowBird(world, yellowBirdText1);
         yellowBird2.setPosition(150,80);
         addBird(yellowBird2);
 

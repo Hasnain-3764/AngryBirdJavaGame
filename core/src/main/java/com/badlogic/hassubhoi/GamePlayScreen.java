@@ -43,7 +43,7 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private Queue<Bird> birdQueue;
     private Bird currentBird;
-    private final float groundLevelY = 50f;
+    private final float groundLevelY = 50f; // box2d ground = -220
     // groundlevelY  is same for slingshot and bird landing
 
     private int level;
@@ -94,6 +94,11 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private final float pixelsToMeters = 32;
 
+    private final float TIMESTEP = 1/60f;
+    private final int VELOCITYITERATIONS = 8, POSITIONITERATIONS = 3;
+
+    private final float PIXELS_TO_METERS = 100f;
+
     public GamePlayScreen(UIManager uiManager, int level) {
         System.out.println("Initializing GamePlayScreen for level: " + level);
         this.uiManager = uiManager;
@@ -107,27 +112,21 @@ public class GamePlayScreen extends ScreenAdapter {
         this.stage = new Stage(viewport, batch);
         Gdx.input.setInputProcessor(stage);
 
+        batch = new SpriteBatch();
 
-//        String backgroundFile = uiManager.getSelectedBackground();
-//        background = new Texture(Gdx.files.internal(backgroundFile));
-//        background = new Texture("Level" + level + ".png");
-//        platform = new Texture("platform.png");
-//        textureAtlas = new TextureAtlas(Gdx.files.internal("level1/Spritesheets/loadSprite.atlas"));
-//        textureRegion = textureAtlas.findRegion("002");
+        world = new World(new Vector2(0, -9.81f), true);
+        debugRenderer = new Box2DDebugRenderer();
+//        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        camera = new OrthographicCamera(viewport.getWorldWidth(), viewport.getWorldHeight());
+        camera.position.set(105,125,0);
+        camera.update();
+
+
         slingshotTexture = new Texture("slingshot.png");
 
-//        if (level == 1) {
-//            textureAtlas = new TextureAtlas(Gdx.files.internal("level1/Spritesheets/loadSprite.atlas"));
-//        } else if (level == 2) {
-//            textureAtlas = new TextureAtlas(Gdx.files.internal("level2/Spritesheets/loadSprite.atlas"));
-//        }
-//        else if (level == 3){
-//            textureAtlas = new TextureAtlas(Gdx.files.internal("level3/Spritesheets/loadSprite.atlas"));
-//        }
-
-        textureAtlas = new TextureAtlas(Gdx.files.internal("level1/Spritesheets/loadSprite.atlas"));
-        MAX_FRAMES = textureAtlas.getRegions().size;
-
+//        textureAtlas = new TextureAtlas(Gdx.files.internal("level1/Spritesheets/loadSprite.atlas"));
+//        MAX_FRAMES = textureAtlas.getRegions().size;
 
         // Initialize arrays
         birds = new Array<>();
@@ -153,37 +152,52 @@ public class GamePlayScreen extends ScreenAdapter {
     @Override
     public void show() {
 
-        world = new World(new Vector2(0, -9.81f), true);
-        debugRenderer = new Box2DDebugRenderer();
-        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-//        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-
-
-
         // body definition
-        BodyDef balldef = new BodyDef();
-        balldef.type = BodyDef.BodyType.DynamicBody;
-        balldef.position.set(0,1); // this is 1 meters.
-//        balldef.position.set(0, 500/pixelsToMeters)
+        BodyDef bodydef = new BodyDef();
+        bodydef.type = BodyDef.BodyType.DynamicBody;
+
+//        bodydef.position.set(0,1); // this is 1 meters.
+//        bodydef.position.set(0, 500/pixelsToMeters)
 
         // ball shape(circle)
         CircleShape shape = new CircleShape();
-        shape.setRadius(0.25f);
+        shape.setRadius(1f);
+        shape.setPosition(new Vector2(0, 1.5f));
 
         // fixture definition
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = null;
+        fixtureDef.shape = shape;
         fixtureDef.density = 2.5f; // 2.5 kg in 1 square meter.
         fixtureDef.friction = 0.25f;
         fixtureDef.restitution = 0.75f;
 
-        world.createBody(balldef).createFixture(fixtureDef); // or
+        world.createBody(bodydef).createFixture(fixtureDef); // or
 //        Fixture fixture = ball.createFixture(fixtureDef);
         // or
-//        world.createBody(balldef).createFixture(fixtureDef);
+//        world.createBody(bodydef).createFixture(fixtureDef);
 
         shape.dispose();
+
+
+        // GROUND
+        // body definition
+        BodyDef groundBodyDef = new BodyDef();
+        groundBodyDef.type = BodyDef.BodyType.StaticBody;
+        groundBodyDef.position.set(0, 0); // In meters
+
+        ChainShape groundShape = new ChainShape();
+        groundShape.createChain(new Vector2[]{
+            new Vector2(-4.5f, -2.2f), // Left corner
+            new Vector2(4.5f, -2.2f)   // Right corner
+        }); // All coordinates in meters
+
+        FixtureDef groundFixtureDef = new FixtureDef();
+        groundFixtureDef.shape = groundShape;
+        groundFixtureDef.friction = 0.5f;
+        groundFixtureDef.restitution = 0;
+
+        world.createBody(groundBodyDef).createFixture(groundFixtureDef);
+        groundShape.dispose();
 
 
         // loading all button textures
@@ -438,6 +452,7 @@ public class GamePlayScreen extends ScreenAdapter {
 
     private void loadLevel(int levelNumber) {
         GameLevel level = LevelManager.loadLevel(levelNumber);
+        level.setWorld(world);
         level.setupLevel();
 
         // add birds to the queue
@@ -485,13 +500,14 @@ public class GamePlayScreen extends ScreenAdapter {
         // game logic
         if (!isPaused) {
             updateGame(delta); // to be implemented
+            world.step(delta, 6, 2); // Step the physics world
             stage.act(delta);
             checkGameState(); // Check for game over or level completion
         }
 
         ScreenUtils.clear(0,0,0,1);
         debugRenderer.render(world, camera.combined);
-
+//        world.step(TIMESTEP, VELOCITYITERATIONS, POSITIONITERATIONS);
         batch.setProjectionMatrix(stage.getCamera().combined);
         batch.begin();
         // accumulte all small delta time
@@ -507,9 +523,9 @@ public class GamePlayScreen extends ScreenAdapter {
         }
 
         //draw the current frame
-        TextureRegion currentFrameRegion = textureAtlas.findRegion(String.format("%03d", currentFrame));
-        batch.draw(currentFrameRegion, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        batch.draw(slingshotTexture, 125, 50, 50, 100);
+//        TextureRegion currentFrameRegion = textureAtlas.findRegion(String.format("%03d", currentFrame));
+//        batch.draw(currentFrameRegion, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        batch.draw(slingshotTexture, 80, 22, 50, 100);
 
         if(levelCompleted){
             levelCompleteTimer += delta;
@@ -634,6 +650,7 @@ public class GamePlayScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
+        ScreenUtils.clear(0,1,0,1);
         viewport.update(width, height, true);
         stage.getViewport().update(width, height, true);
 
@@ -647,28 +664,28 @@ public class GamePlayScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        batch.dispose();
-//        background.dispose();
-        platform.dispose();
-        slingshotTexture.dispose();
-        stage.dispose();
-//        skin.dispose();
+        if (batch != null) batch.dispose();
+        if (platform != null) platform.dispose();
+        if (slingshotTexture != null) slingshotTexture.dispose();
+        if (stage != null) stage.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
 
-        shapeRenderer.dispose();
-//        backgroundMusic.dispose();
-        birdLaunchSound.dispose();
-        pigHitSound.dispose();
-        levelCompleteSound.dispose();
-        gameOverSound.dispose();
-        // Dispose of textures
+        // Dispose audio resources safely
+        if (birdLaunchSound != null) birdLaunchSound.dispose();
+        if (pigHitSound != null) pigHitSound.dispose();
+        if (levelCompleteSound != null) levelCompleteSound.dispose();
+        if (gameOverSound != null) gameOverSound.dispose();
+
+        // Dispose textures safely
         for (Bird bird : birds) {
-            bird.getTexture().dispose();
+            if (bird.getTexture() != null) bird.getTexture().dispose();
         }
         for (Pig pig : pigs) {
-            pig.getTexture().dispose();
+            if (pig.getTexture() != null) pig.getTexture().dispose();
         }
         for (Structure structure : structures) {
-            structure.getTexture().dispose();
+            if (structure.getTexture() != null) structure.getTexture().dispose();
         }
     }
+
 }

@@ -2,8 +2,15 @@ package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class Level1 extends GameLevel {
+
+    private World world;
+
+    public Level1(World world) {
+        this.world = world;
+    }
 
     @Override
     public void setupLevel() {
@@ -49,15 +56,15 @@ public class Level1 extends GameLevel {
 
         // Add birds
         Texture redBirdTexture = new Texture(Gdx.files.internal("Birds/red.png"));
-        RedBird redBird = new RedBird(redBirdTexture);
+        RedBird redBird = new RedBird(world, redBirdTexture);
         redBird.setPosition(150, 150);
         addBird(redBird);
 
-        RedBird redBird2 = new RedBird(redBirdTexture);
+        RedBird redBird2 = new RedBird(world, redBirdTexture);
         redBird2.setPosition(150, 150);
         addBird(redBird2);
 
-        RedBird redBird3 = new RedBird(redBirdTexture);
+        RedBird redBird3 = new RedBird(world, redBirdTexture);
         redBird3.setPosition(150, 150);
         addBird(redBird3);
 

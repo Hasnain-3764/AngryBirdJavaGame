@@ -2,16 +2,16 @@ package com.badlogic.hassubhoi;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class BlackBird extends Bird {
     private boolean hasExploded = false;
     float explosionRadius = 150f;
 
-    public BlackBird(Texture texture) {
-        super(texture);
+    public BlackBird(World world, Texture texture) {
+        super(world, texture);
     }
-
     @Override
     public void activateSpecialAbility() {
         if (!hasExploded) {
